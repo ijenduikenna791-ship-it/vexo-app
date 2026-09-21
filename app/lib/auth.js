@@ -17,14 +17,17 @@ export function getUsers() {
   return safeParse(localStorage.getItem(USERS_KEY)) || [];
 }
 
-export function signup({ name, email, password }) {
+export function signup({ username, email, phone, country, password }) {
   const users = getUsers();
   if (users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
     return { success: false, error: "An account with this email already exists." };
   }
-  const newUser = { name, email, password };
+  if (users.some((u) => u.username.toLowerCase() === username.toLowerCase())) {
+    return { success: false, error: "That username is already taken." };
+  }
+  const newUser = { username, email, phone, country, password };
   localStorage.setItem(USERS_KEY, JSON.stringify([...users, newUser]));
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ name, email }));
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ username, email, phone, country }));
   return { success: true };
 }
 
@@ -36,7 +39,10 @@ export function login({ email, password }) {
   if (!user) {
     return { success: false, error: "Invalid email or password." };
   }
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ name: user.name, email: user.email }));
+  localStorage.setItem(
+    SESSION_KEY,
+    JSON.stringify({ username: user.username, email: user.email, phone: user.phone, country: user.country })
+  );
   return { success: true };
 }
 

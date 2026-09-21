@@ -1,4 +1,83 @@
-"use client";
+﻿const fs = require("fs");
+const path = require("path");
+
+const files = {
+  "app/lib/auth.js": `const USERS_KEY = "vexo_users";
+const SESSION_KEY = "vexo_session";
+const ADMIN_SESSION_KEY = "vexo_admin_session";
+const ADMIN_EMAIL = "admin@vexo.com";
+const ADMIN_PASSWORD = "admin123";
+
+function safeParse(value) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+export function getUsers() {
+  if (typeof window === "undefined") return [];
+  return safeParse(localStorage.getItem(USERS_KEY)) || [];
+}
+
+export function signup({ username, email, phone, country, password }) {
+  const users = getUsers();
+  if (users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
+    return { success: false, error: "An account with this email already exists." };
+  }
+  if (users.some((u) => u.username.toLowerCase() === username.toLowerCase())) {
+    return { success: false, error: "That username is already taken." };
+  }
+  const newUser = { username, email, phone, country, password };
+  localStorage.setItem(USERS_KEY, JSON.stringify([...users, newUser]));
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ username, email, phone, country }));
+  return { success: true };
+}
+
+export function login({ email, password }) {
+  const users = getUsers();
+  const user = users.find(
+    (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+  );
+  if (!user) {
+    return { success: false, error: "Invalid email or password." };
+  }
+  localStorage.setItem(
+    SESSION_KEY,
+    JSON.stringify({ username: user.username, email: user.email, phone: user.phone, country: user.country })
+  );
+  return { success: true };
+}
+
+export function getSession() {
+  if (typeof window === "undefined") return null;
+  return safeParse(localStorage.getItem(SESSION_KEY));
+}
+
+export function logout() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
+export function adminLogin({ email, password }) {
+  if (email.toLowerCase() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({ email }));
+    return { success: true };
+  }
+  return { success: false, error: "Invalid admin credentials." };
+}
+
+export function getAdminSession() {
+  if (typeof window === "undefined") return null;
+  return safeParse(localStorage.getItem(ADMIN_SESSION_KEY));
+}
+
+export function adminLogout() {
+  localStorage.removeItem(ADMIN_SESSION_KEY);
+}
+`,
+
+  "app/signup/page.js": `"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -66,7 +145,7 @@ export default function Signup() {
         <div className="w-full h-1 bg-vexo-border rounded-full mt-6 overflow-hidden">
           <div
             className="h-full bg-vexo-orange rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
+            style={{ width: \`\${progress}%\` }}
           />
         </div>
 
@@ -219,3 +298,14 @@ export default function Signup() {
     </main>
   );
 }
+`,
+};
+
+for (const [relativePath, content] of Object.entries(files)) {
+  const fullPath = path.join(__dirname, relativePath);
+  fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+  fs.writeFileSync(fullPath, content, "utf8");
+  console.log("Created:", relativePath);
+}
+
+console.log("\nDone! Signup now collects username, email, country, phone (step 1) and password + confirm password (step 2).");
