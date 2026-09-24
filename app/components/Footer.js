@@ -1,13 +1,17 @@
+"use client";
 import Reveal from "./Reveal";
-
-const columns = [
-  { title: "Product", links: ["Features", "Markets", "Security", "Earn", "Crypto Card"] },
-  { title: "Company", links: ["About", "Blog", "Careers", "Press", "Partners"] },
-  { title: "Legal", links: ["Privacy Policy", "Terms of Service", "Cookie Policy", "Licenses"] },
-  { title: "Support", links: ["Help Center", "Contact Us", "Status Page", "Bug Bounty"] },
-];
+import { useLanguage } from "../lib/i18n";
 
 export default function Footer() {
+  const { t } = useLanguage();
+
+  const columns = [
+    { title: t("footerProduct"), links: ["Features", "Markets", "Security", "Earn", "Crypto Card"] },
+    { title: t("footerCompany"), links: ["About", "Blog", "Careers", "Press", "Partners"] },
+    { title: t("footerLegal"), links: ["Privacy Policy", "Terms of Service", "Cookie Policy", "Licenses"] },
+    { title: t("footerSupport"), links: ["Help Center", "Contact Us", "Status Page", "Bug Bounty"] },
+  ];
+
   return (
     <footer className="border-t border-vexo-border">
       <Reveal y={16} scale={1}>
@@ -17,7 +21,7 @@ export default function Footer() {
             <p className="text-lg font-extrabold">Vexo</p>
           </div>
           <p className="text-vexo-muted text-sm mt-3 max-w-sm">
-            The premium crypto exchange platform. Secure. Fast. Reimagined.
+            {t("footerTagline")}
           </p>
           <div className="flex gap-3 mt-5">
             {["🌐", "✉️", "📡", "➤"].map((icon, i) => (
@@ -43,8 +47,8 @@ export default function Footer() {
           </div>
 
           <div className="border-t border-vexo-border mt-10 pt-6 flex flex-col md:flex-row justify-between gap-3 text-vexo-muted text-xs">
-            <p>© 2026 Vexo Technologies Ltd. All rights reserved.</p>
-            <p>Regulated by FCA & MiCA</p>
+            <p>{t("footerCopyright")}</p>
+            <p>{t("footerRegulated")}</p>
           </div>
         </div>
       </Reveal>

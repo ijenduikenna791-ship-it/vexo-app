@@ -1,29 +1,31 @@
 "use client";
 import { useState } from "react";
 import Reveal from "./Reveal";
-
-const faqs = [
-  { q: "How do I get started with Vexo?", a: "Create a free account, verify your email, and fund your wallet — you can be trading in under two minutes." },
-  { q: "Is Vexo secure?", a: "Yes. We use AES-256 encryption, biometric login, 98% cold storage, and SOC2-audited infrastructure." },
-  { q: "What cryptocurrencies are supported?", a: "Vexo supports 120+ coins including Bitcoin, Ethereum, Solana, and major stablecoins." },
-  { q: "What are the fees?", a: "New accounts get zero trading fees for the first 30 days. After that, fees start at 0.1% per swap." },
-];
+import { useLanguage } from "../lib/i18n";
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState(null);
+  const { t } = useLanguage();
+
+  const faqs = [
+    { q: t("faq1Q"), a: t("faq1A") },
+    { q: t("faq2Q"), a: t("faq2A") },
+    { q: t("faq3Q"), a: t("faq3A") },
+    { q: t("faq4Q"), a: t("faq4A") },
+  ];
 
   return (
     <section id="faq" className="max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
       <Reveal>
-        <p className="text-vexo-orange text-sm font-semibold tracking-wide">FAQ</p>
+        <p className="text-vexo-orange text-sm font-semibold tracking-wide">{t("faqSectionLabel")}</p>
         <h2 className="text-2xl sm:text-3xl font-extrabold mt-2">
-          Got <span className="text-vexo-orange">questions?</span>
+          {t("faqHeadingPart1")} <span className="text-vexo-orange">{t("faqHeadingHighlight")}</span>
         </h2>
         <p className="text-vexo-muted mt-3">
-          Everything you need to know about Vexo. Can't find what you're looking for? Our support team is available 24/7.
+          {t("faqSubtitle")}
         </p>
         <button className="mt-6 px-6 py-3 rounded-full bg-vexo-orange text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(34,197,94,0.4)]">
-          Contact Support
+          {t("contactSupport")}
         </button>
       </Reveal>
 

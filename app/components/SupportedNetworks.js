@@ -1,4 +1,6 @@
+"use client";
 import Reveal from "./Reveal";
+import { useLanguage } from "../lib/i18n";
 
 const networks = [
   { symbol: "₿", name: "Bitcoin" },
@@ -12,15 +14,17 @@ const networks = [
 ];
 
 export default function SupportedNetworks() {
+  const { t } = useLanguage();
+
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
       <Reveal>
-        <p className="text-vexo-orange text-sm font-semibold text-center tracking-wide">MULTI-CHAIN SUPPORT</p>
+        <p className="text-vexo-orange text-sm font-semibold text-center tracking-wide">{t("networksLabel")}</p>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-center mt-2">
-          One wallet, <span className="text-vexo-orange">every major chain</span>
+          {t("networksHeadingPart1")} <span className="text-vexo-orange">{t("networksHeadingHighlight")}</span>
         </h2>
         <p className="text-vexo-muted text-center mt-3 max-w-xl mx-auto">
-          Move seamlessly across the networks you already use — no bridging headaches, no extra apps.
+          {t("networksSubtitle")}
         </p>
       </Reveal>
 

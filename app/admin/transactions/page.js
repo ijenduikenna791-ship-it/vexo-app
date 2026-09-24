@@ -1,9 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IconArrowDown, IconArrowUp, IconArrowsExchange } from "@tabler/icons-react";
-import UserAvatar from "../../components/UserAvatar";
 import StatusBadge from "../../components/StatusBadge";
-import AdminBottomNav from "../../components/AdminBottomNav";
+import { supabase } from "../../lib/supabaseClient";
 
 const tabs = ["All", "Deposits", "Withdrawals", "Swaps"];
 
@@ -13,19 +12,41 @@ const typeIcons = {
   Swap: { icon: IconArrowsExchange, color: "#F5590E" },
 };
 
-const transactions = [
-  { user: "Norman Osborn", type: "Deposit", amount: "+$5,200.00", status: "Completed", date: "Sep 17" },
-  { user: "Priya Nair", type: "Withdraw", amount: "-$1,050.00", status: "Completed", date: "Sep 17" },
-  { user: "Marcus Ade", type: "Swap", amount: "BTC → ETH", status: "Pending", date: "Sep 16" },
-  { user: "Sarah Chen", type: "Deposit", amount: "+$800.00", status: "Completed", date: "Sep 16" },
-  { user: "David Kim", type: "Withdraw", amount: "-$120.00", status: "Failed", date: "Sep 15" },
-  { user: "Priya Nair", type: "Swap", amount: "ETH → USDT", status: "Completed", date: "Sep 15" },
-];
-
 const typeMap = { Deposits: "Deposit", Withdrawals: "Withdraw", Swaps: "Swap" };
 
 export default function AdminTransactions() {
   const [active, setActive] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [transactions, setTransactions] = useState([]);
+
+  useEffect(() => {
+    async function loadData() {
+      const { data: txRows } = await supabase
+        .from("transactions")
+        .select("*")
+        .order("created_at", { ascending: false });
+      const { data: profileRows } = await supabase.from("profiles").select("id, username, email");
+
+      const mapped = (txRows || []).map((t) => {
+        const owner = (profileRows || []).find((p) => p.id === t.user_id);
+        const amountNum = Number(t.amount || 0);
+        let amountDisplay = `$${amountNum.toFixed(2)}`;
+        if (t.type === "Deposit") amountDisplay = `+$${amountNum.toFixed(2)}`;
+        if (t.type === "Withdraw") amountDisplay = `-$${amountNum.toFixed(2)}`;
+        return {
+          user: owner?.username || owner?.email || "Unknown user",
+          type: t.type,
+          amount: amountDisplay,
+          status: t.status || "Completed",
+          date: t.created_at ? new Date(t.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "",
+        };
+      });
+
+      setTransactions(mapped);
+      setLoading(false);
+    }
+    loadData();
+  }, []);
 
   const filtered =
     active === "All" ? transactions : transactions.filter((t) => t.type === typeMap[active]);
@@ -52,8 +73,8 @@ export default function AdminTransactions() {
       </div>
 
       <div className="bg-vexo-card border border-vexo-border rounded-2xl px-4">
-        {filtered.map((tx, i) => {
-          const meta = typeIcons[tx.type];
+        {!loading && filtered.map((tx, i) => {
+          const meta = typeIcons[tx.type] || typeIcons.Deposit;
           return (
             <div key={i} className="flex items-center justify-between py-4 border-b border-vexo-border last:border-none">
               <div className="flex items-center gap-3">
@@ -72,12 +93,10 @@ export default function AdminTransactions() {
             </div>
           );
         })}
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <p className="text-vexo-muted text-sm text-center py-6">No transactions found.</p>
         )}
       </div>
-
-      <AdminBottomNav />
     </main>
   );
 }

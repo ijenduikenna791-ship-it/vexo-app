@@ -17,3 +17,15 @@ body {
   background-color: #0a0a0b;
   color: #ffffff;
 }
+
+/* ---- Light mode overrides v2 (overrides compiled utility classes directly) ---- */
+html[data-theme="light"] body {
+  background-color: #f5f6f8 !important;
+  color: #0a0a0b !important;
+}
+html[data-theme="light"] .bg-vexo-bg { background-color: #f5f6f8 !important; }
+html[data-theme="light"] .bg-vexo-card { background-color: #ffffff !important; }
+html[data-theme="light"] .bg-vexo-card2 { background-color: #eef0f3 !important; }
+html[data-theme="light"] .border-vexo-border { border-color: #e2e4e9 !important; }
+html[data-theme="light"] .text-vexo-muted { color: #6b7280 !important; }
+html[data-theme="light"] .text-white { color: #0a0a0b !important; }

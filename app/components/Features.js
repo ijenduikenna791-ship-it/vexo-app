@@ -1,22 +1,26 @@
+"use client";
 import Reveal from "./Reveal";
-
-const features = [
-  { icon: "🔒", title: "Bank-grade security", desc: "Your assets are protected with multi-layer encryption and cold storage." },
-  { icon: "⚡", title: "Instant swaps", desc: "Trade between 120+ coins in seconds with the best available rates." },
-  { icon: "📊", title: "Live portfolio tracking", desc: "See your gains, losses, and trends update in real time." },
-  { icon: "🌍", title: "Global access", desc: "Use Vexo anywhere — no bank account or borders required." },
-];
+import { useLanguage } from "../lib/i18n";
 
 export default function Features() {
+  const { t } = useLanguage();
+
+  const features = [
+    { icon: "🔒", title: t("feature1Title"), desc: t("feature1Desc") },
+    { icon: "⚡", title: t("feature2Title"), desc: t("feature2Desc") },
+    { icon: "📊", title: t("feature3Title"), desc: t("feature3Desc") },
+    { icon: "🌍", title: t("feature4Title"), desc: t("feature4Desc") },
+  ];
+
   return (
     <section id="features" className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
       <Reveal>
-        <p className="text-vexo-orange text-sm font-semibold text-center tracking-wide">WHY VEXO</p>
+        <p className="text-vexo-orange text-sm font-semibold text-center tracking-wide">{t("featuresLabel")}</p>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-center mt-2">
-          Everything you need to <span className="text-vexo-orange">master crypto</span>
+          {t("featuresHeadingPart1")} <span className="text-vexo-orange">{t("featuresHeadingHighlight")}</span>
         </h2>
         <p className="text-vexo-muted text-center mt-3 max-w-xl mx-auto">
-          Built for crypto natives. Every feature crafted for power, simplicity, and trust.
+          {t("featuresSubtitle")}
         </p>
       </Reveal>
       <div className="grid md:grid-cols-2 gap-6 mt-12">

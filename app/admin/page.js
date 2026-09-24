@@ -1,45 +1,80 @@
-import { IconUsers, IconChartBar, IconWallet, IconClockHour4, IconShieldLock } from "@tabler/icons-react";
-import UserAvatar from "../components/UserAvatar";
-import StatusBadge from "../components/StatusBadge";
+"use client";
+import { useState, useEffect } from "react";
+import { IconUsers, IconChartBar, IconWallet, IconClockHour4 } from "@tabler/icons-react";
 import AdminBottomNav from "../components/AdminBottomNav";
-
-const stats = [
-  { icon: IconUsers, iconColor: "#3B82F6", label: "Total Users", value: "248,391", change: "+1.4%", up: true },
-  { icon: IconChartBar, iconColor: "#22C55E", label: "24h Volume", value: "$18.2M", change: "+6.2%", up: true },
-  { icon: IconWallet, iconColor: "#F5590E", label: "Active Wallets", value: "94,120", change: "+0.8%", up: true },
-  { icon: IconClockHour4, iconColor: "#EAB308", label: "Pending KYC", value: "412", change: "-3.1%", up: false },
-];
-
-const recentTx = [
-  { user: "Norman Osborn", type: "Deposit", amount: "+$5,200.00", status: "Completed" },
-  { user: "Priya Nair", type: "Withdraw", amount: "-$1,050.00", status: "Completed" },
-  { user: "Marcus Ade", type: "Swap", amount: "BTC → ETH", status: "Pending" },
-  { user: "Sarah Chen", type: "Deposit", amount: "+$800.00", status: "Completed" },
-];
+import { supabase } from "../lib/supabaseClient";
 
 export default function AdminOverview() {
+  const [loading, setLoading] = useState(true);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [volume24h, setVolume24h] = useState(0);
+  const [activeWallets, setActiveWallets] = useState(0);
+  const [pendingKyc, setPendingKyc] = useState(0);
+  const [recentTx, setRecentTx] = useState([]);
+
+  useEffect(() => {
+    async function loadData() {
+      const { data: profileRows } = await supabase.from("profiles").select("id, kyc_status");
+      const { data: walletRows } = await supabase.from("wallets").select("id, amount");
+
+      const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data: recentTxRows } = await supabase
+        .from("transactions")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      const txList = recentTxRows || [];
+      const userIds = [...new Set(txList.map((t) => t.user_id).filter(Boolean))];
+      let profileMap = {};
+      if (userIds.length > 0) {
+        const { data: txProfiles } = await supabase.from("profiles").select("id, username, email").in("id", userIds);
+        (txProfiles || []).forEach((p) => { profileMap[p.id] = p.username || p.email || "Unknown user"; });
+      }
+
+      const volume = txList
+        .filter((t) => t.created_at && t.created_at >= cutoff)
+        .reduce((sum, t) => sum + Math.abs(Number(t.amount || 0)), 0);
+
+      setTotalUsers((profileRows || []).length);
+      setPendingKyc((profileRows || []).filter((p) => p.kyc_status === "submitted").length);
+      setActiveWallets((walletRows || []).filter((w) => Number(w.amount) > 0).length);
+      setVolume24h(volume);
+      setRecentTx(
+        txList.slice(0, 5).map((t) => ({
+          user: profileMap[t.user_id] || "Unknown user",
+          type: t.type,
+          amount: `$${Number(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+          status: t.status || "Pending",
+        }))
+      );
+      setLoading(false);
+    }
+    loadData();
+  }, []);
+
+  const stats = [
+    { icon: IconUsers, label: "Total Users", value: loading ? "..." : totalUsers.toLocaleString(), bg: "bg-blue-500/15", color: "text-blue-400" },
+    { icon: IconChartBar, label: "24h Volume", value: loading ? "..." : `${volume24h.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, bg: "bg-vexo-orange/15", color: "text-vexo-orange" },
+    { icon: IconWallet, label: "Active Wallets", value: loading ? "..." : activeWallets.toLocaleString(), bg: "bg-vexo-green/15", color: "text-vexo-green" },
+    { icon: IconClockHour4, label: "Pending KYC", value: loading ? "..." : pendingKyc.toLocaleString(), bg: "bg-amber-500/15", color: "text-amber-400" },
+  ];
+
   return (
     <main className="max-w-md mx-auto min-h-screen pb-28 px-4 pt-6 flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <IconShieldLock size={14} className="text-vexo-orange" />
-            <p className="text-vexo-orange text-xs font-semibold uppercase tracking-wide">Admin</p>
-          </div>
-          <p className="text-3xl font-bold mt-1">Overview</p>
-        </div>
-        <UserAvatar name="Admin" size={40} />
+      <div>
+        <p className="text-vexo-muted text-xs uppercase tracking-wide">Admin</p>
+        <p className="text-3xl font-bold mt-1">Overview</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         {stats.map((s) => (
           <div key={s.label} className="bg-vexo-card border border-vexo-border rounded-2xl p-4">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: `${s.iconColor}1A`, color: s.iconColor }}>
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${s.bg} ${s.color}`}>
               <s.icon size={18} />
             </div>
             <p className="font-bold text-lg leading-tight">{s.value}</p>
             <p className="text-vexo-muted text-xs mt-1">{s.label}</p>
-            <p className={`text-xs mt-1 font-semibold ${s.up ? "text-vexo-green" : "text-red-400"}`}>{s.change}</p>
           </div>
         ))}
       </div>
@@ -47,18 +82,18 @@ export default function AdminOverview() {
       <div>
         <p className="text-vexo-muted text-xs uppercase tracking-wide mb-2">Recent Transactions</p>
         <div className="bg-vexo-card border border-vexo-border rounded-2xl px-4">
+          {!loading && recentTx.length === 0 && (
+            <p className="text-vexo-muted text-sm text-center py-6">No transactions yet.</p>
+          )}
           {recentTx.map((tx, i) => (
             <div key={i} className="flex items-center justify-between py-4 border-b border-vexo-border last:border-none">
-              <div className="flex items-center gap-3">
-                <UserAvatar name={tx.user} size={36} />
-                <div>
-                  <p className="font-semibold text-sm">{tx.user}</p>
-                  <p className="text-vexo-muted text-xs">{tx.type}</p>
-                </div>
+              <div>
+                <p className="font-semibold text-sm">{tx.user}</p>
+                <p className="text-vexo-muted text-xs">{tx.type}</p>
               </div>
-              <div className="text-right flex flex-col items-end gap-1">
+              <div className="text-right">
                 <p className="font-semibold text-sm">{tx.amount}</p>
-                <StatusBadge status={tx.status} />
+                <p className={`text-xs ${tx.status === "Completed" ? "text-vexo-green" : tx.status === "Failed" || tx.status === "Rejected" ? "text-red-400" : "text-yellow-400"}`}>{tx.status}</p>
               </div>
             </div>
           ))}

@@ -1,8 +1,7 @@
 "use client";
 import { useState } from "react";
 import Reveal from "./Reveal";
-
-const tabs = ["All", "DeFi", "Layer 1", "Stablecoins"];
+import { useLanguage } from "../lib/i18n";
 
 const assets = [
   { symbol: "BTC", name: "Bitcoin", icon: "₿", change: "+2.34%", price: "$67,842.5", up: true },
@@ -17,6 +16,14 @@ const assets = [
 
 export default function MarketsTable() {
   const [active, setActive] = useState("All");
+  const { t } = useLanguage();
+
+  const tabs = [
+    { key: "All", label: t("all") },
+    { key: "DeFi", label: t("marketsTabDefi") },
+    { key: "Layer 1", label: t("marketsTabLayer1") },
+    { key: "Stablecoins", label: t("marketsTabStablecoins") },
+  ];
 
   return (
     <section id="markets" className="max-w-4xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
@@ -25,18 +32,18 @@ export default function MarketsTable() {
           <div className="flex gap-2 overflow-x-auto">
             {tabs.map((tab) => (
               <button
-                key={tab}
-                onClick={() => setActive(tab)}
+                key={tab.key}
+                onClick={() => setActive(tab.key)}
                 className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
-                  active === tab ? "bg-vexo-orange text-white scale-105" : "bg-vexo-card2 text-vexo-muted hover:text-white"
+                  active === tab.key ? "bg-vexo-orange text-white scale-105" : "bg-vexo-card2 text-vexo-muted hover:text-white"
                 }`}
               >
-                {tab}
+                {tab.label}
               </button>
             ))}
           </div>
           <span className="flex items-center gap-2 text-vexo-green text-sm font-semibold">
-            <span className="w-2 h-2 rounded-full bg-vexo-green animate-pulse" /> Live
+            <span className="w-2 h-2 rounded-full bg-vexo-green animate-pulse" /> {t("live")}
           </span>
         </div>
       </Reveal>
@@ -44,8 +51,8 @@ export default function MarketsTable() {
       <Reveal delay={0.1}>
         <div className="bg-vexo-card border border-vexo-border rounded-2xl px-3 sm:px-6">
           <div className="flex justify-between text-vexo-muted text-xs uppercase tracking-wide py-3 border-b border-vexo-border">
-            <span>Asset</span>
-            <span>24h · Price</span>
+            <span>{t("assetColumnLabel")}</span>
+            <span>{t("change24hPriceLabel")}</span>
           </div>
           {assets.map((a) => (
             <div key={a.symbol} className="flex items-center justify-between gap-2 py-4 border-b border-vexo-border last:border-none transition-colors duration-200 hover:bg-vexo-card2/50 rounded-lg px-2 -mx-2">

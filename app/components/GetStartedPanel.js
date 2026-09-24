@@ -1,24 +1,28 @@
+"use client";
 import Link from "next/link";
 import Reveal from "./Reveal";
-
-const stats = [
-  { icon: "🛡", value: "248K+", label: "Active Users" },
-  { icon: "📈", value: "$2.84B", label: "Assets Secured" },
-  { icon: "⚡", value: "<0.1s", label: "Swap Execution" },
-];
+import { useLanguage } from "../lib/i18n";
 
 const bars = [20, 28, 24, 34, 40, 38, 48, 52, 60, 58, 68, 74];
 
 export default function GetStartedPanel() {
+  const { t } = useLanguage();
+
+  const stats = [
+    { icon: "🛡", value: "248K+", label: t("statActiveUsers") },
+    { icon: "📈", value: "$2.84B", label: t("statAssetsSecured") },
+    { icon: "⚡", value: "<0.1s", label: t("statSwapExecution") },
+  ];
+
   return (
     <section className="max-w-3xl mx-auto px-4 sm:px-6 pb-20">
       <Reveal>
         <div className="flex flex-col gap-4">
           <Link href="/signup" className="w-full py-4 rounded-2xl bg-vexo-orange text-white font-bold text-lg flex items-center justify-center gap-2 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_28px_rgba(34,197,94,0.4)] active:scale-[0.98]">
-            Create Free Account <span>→</span>
+            {t("createFreeAccount")} <span>→</span>
           </Link>
           <Link href="/login" className="w-full py-4 rounded-2xl border border-vexo-border font-semibold text-lg text-center transition-all duration-300 hover:border-vexo-orange/50 hover:bg-vexo-card">
-            Sign In
+            {t("signIn")}
           </Link>
         </div>
       </Reveal>
@@ -45,7 +49,7 @@ export default function GetStartedPanel() {
             <span>9:41</span>
             <span className="w-8 h-3 rounded-full bg-vexo-green" />
           </div>
-          <p className="text-vexo-muted text-xs uppercase tracking-wide">Total Balance</p>
+          <p className="text-vexo-muted text-xs uppercase tracking-wide">{t("totalBalanceLabel")}</p>
           <p className="text-3xl sm:text-4xl font-bold mt-2">$67,894.23</p>
           <p className="text-vexo-green text-sm mt-2">▲ +$2,840 (+4.36%)</p>
           <div className="flex items-end gap-1.5 sm:gap-2 mt-10 h-32 sm:h-40">

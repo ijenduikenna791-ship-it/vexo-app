@@ -1,25 +1,29 @@
+"use client";
 import Reveal from "./Reveal";
 import HeroVisual from "./HeroVisual";
-
-const trustList = [
-  { icon: "🔒", title: "AES-256 Encryption", desc: "Military-grade encryption for all data at rest and in transit." },
-  { icon: "🆔", title: "Biometric Auth", desc: "Face ID and fingerprint login for instant, passwordless access." },
-  { icon: "👁", title: "24/7 Monitoring", desc: "Real-time anomaly detection with automated threat response." },
-  { icon: "🧊", title: "Cold Storage 98%", desc: "Majority of assets held in air-gapped, offline cold wallets." },
-  { icon: "🎖", title: "SOC2 Certified", desc: "Independently audited by Big-4 security firms every year." },
-  { icon: "🛡", title: "$500M Insurance", desc: "Full asset coverage through leading global insurance policies." },
-];
+import { useLanguage } from "../lib/i18n";
 
 export default function Hero() {
+  const { t } = useLanguage();
+
+  const trustList = [
+    { icon: "🔒", title: t("trust1Title"), desc: t("trust1Desc") },
+    { icon: "🆔", title: t("trust2Title"), desc: t("trust2Desc") },
+    { icon: "👁", title: t("trust3Title"), desc: t("trust3Desc") },
+    { icon: "🧊", title: t("trust4Title"), desc: t("trust4Desc") },
+    { icon: "🎖", title: t("trust5Title"), desc: t("trust5Desc") },
+    { icon: "🛡", title: t("trust6Title"), desc: t("trust6Desc") },
+  ];
+
   return (
     <section id="security" className="max-w-6xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-12">
       <div className="grid lg:grid-cols-2 gap-10 items-center">
         <Reveal y={20} scale={0.97}>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
-            Your crypto, <span className="text-vexo-orange">Fort Knox</span> protected
+            {t("heroTitlePart1")} <span className="text-vexo-orange">{t("heroTitleHighlight")}</span> {t("heroTitlePart2")}
           </h1>
           <p className="text-vexo-muted mt-5 text-base sm:text-lg">
-            We obsess over security so you don't have to. Every layer of Vexo is engineered to protect your assets with the highest standards in the industry.
+            {t("heroSubtitle")}
           </p>
         </Reveal>
 

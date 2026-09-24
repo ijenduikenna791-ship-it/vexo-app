@@ -1,4 +1,9 @@
+"use client";
+import { useLanguage } from "../lib/i18n";
+
 export default function HeroVisual() {
+  const { t } = useLanguage();
+
   return (
     <div className="relative w-full h-[420px] sm:h-[480px] flex items-center justify-center">
       <svg
@@ -30,22 +35,22 @@ export default function HeroVisual() {
         <div className="bg-vexo-card border border-vexo-border rounded-[1.75rem] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
           <div className="bg-vexo-bg rounded-[1.4rem] p-3 h-[280px] sm:h-[320px] flex flex-col gap-2">
             <div className="flex items-center justify-between text-[9px] text-vexo-muted">
-              <span>News</span>
+              <span>{t("heroVisualNews")}</span>
               <span>🔔</span>
             </div>
             <div className="flex gap-1">
-              {["Latest", "Hot", "BTC"].map((t) => (
-                <span key={t} className="text-[8px] px-2 py-1 rounded-full bg-vexo-card2 text-vexo-muted">{t}</span>
+              {[t("heroVisualLatest"), t("heroVisualHot"), "BTC"].map((tab) => (
+                <span key={tab} className="text-[8px] px-2 py-1 rounded-full bg-vexo-card2 text-vexo-muted">{tab}</span>
               ))}
             </div>
             <div className="rounded-xl bg-gradient-to-br from-vexo-orange to-vexo-orange/60 p-2 h-14">
-              <p className="text-[9px] font-bold text-white">Vexo Special Event</p>
-              <p className="text-[7px] text-white/80 mt-1">Be first in line</p>
+              <p className="text-[9px] font-bold text-white">{t("heroVisualEventTitle")}</p>
+              <p className="text-[7px] text-white/80 mt-1">{t("heroVisualEventSubtitle")}</p>
             </div>
             {[1, 2].map((i) => (
               <div key={i} className="flex items-center gap-2 bg-vexo-card2 rounded-lg p-1.5">
                 <div className="w-6 h-6 rounded bg-vexo-border shrink-0" />
-                <p className="text-[7px] leading-tight text-vexo-muted">Bitcoin market update, on-chain data</p>
+                <p className="text-[7px] leading-tight text-vexo-muted">{t("heroVisualMarketUpdate")}</p>
               </div>
             ))}
           </div>
@@ -70,13 +75,13 @@ export default function HeroVisual() {
               />
             </svg>
             <div className="flex gap-1 mt-1">
-              {["1D", "1W", "1M", "1Y"].map((t) => (
-                <span key={t} className="text-[7px] px-1.5 py-0.5 rounded bg-vexo-card2 text-vexo-muted">{t}</span>
+              {["1D", "1W", "1M", "1Y"].map((tf) => (
+                <span key={tf} className="text-[7px] px-1.5 py-0.5 rounded bg-vexo-card2 text-vexo-muted">{tf}</span>
               ))}
             </div>
             <div className="mt-auto grid grid-cols-2 gap-1 text-[7px] text-vexo-muted">
-              <p>Market Cap<br /><span className="text-white font-semibold">$1.3T</span></p>
-              <p>24h Vol<br /><span className="text-vexo-green font-semibold">+1.52%</span></p>
+              <p>{t("heroVisualMarketCap")}<br /><span className="text-white font-semibold">$1.3T</span></p>
+              <p>{t("heroVisual24hVol")}<br /><span className="text-vexo-green font-semibold">+1.52%</span></p>
             </div>
           </div>
         </div>

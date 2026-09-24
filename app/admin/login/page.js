@@ -10,11 +10,14 @@ export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    const result = adminLogin({ email, password });
+    setLoading(true);
+    const result = await adminLogin({ email, password });
+    setLoading(false);
     if (result.success) {
       router.push("/admin");
     } else {
@@ -50,7 +53,7 @@ export default function AdminLogin() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@vexo.com"
+              placeholder="you@example.com"
               required
               className="w-full mt-2 bg-vexo-card border border-vexo-border rounded-xl px-4 py-3 text-sm outline-none focus:border-vexo-orange"
             />
@@ -77,16 +80,13 @@ export default function AdminLogin() {
             </div>
           </div>
 
-          <button type="submit" className="w-full py-3 rounded-xl bg-vexo-orange text-white font-bold">
-            Sign In to Admin
+          <button type="submit" disabled={loading} className="w-full py-3 rounded-xl bg-vexo-orange text-white font-bold disabled:opacity-60">
+            {loading ? "Signing in..." : "Sign In to Admin"}
           </button>
         </form>
 
         <p className="text-vexo-muted text-xs text-center mt-6">
           This portal is restricted to Vexo staff. Unauthorized access attempts are logged.
-        </p>
-        <p className="text-vexo-muted text-xs text-center mt-2">
-          Demo credentials: admin@vexo.com / admin123
         </p>
       </div>
     </main>

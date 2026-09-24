@@ -12,11 +12,14 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    const result = login({ email, password });
+    setLoading(true);
+    const result = await login({ email, password });
+    setLoading(false);
     if (result.success) {
       router.push("/dashboard");
     } else {
@@ -88,8 +91,8 @@ export default function Login() {
             Remember me for 30 days
           </label>
 
-          <button type="submit" className="w-full py-3 rounded-xl bg-vexo-orange text-white font-bold flex items-center justify-center gap-2">
-            Sign In <span>→</span>
+          <button type="submit" disabled={loading} className="w-full py-3 rounded-xl bg-vexo-orange text-white font-bold flex items-center justify-center gap-2 disabled:opacity-60">
+            {loading ? "Signing in..." : <>Sign In <span>→</span></>}
           </button>
 
           <button type="button" className="flex items-center justify-center gap-2 text-vexo-orange text-sm font-semibold">
