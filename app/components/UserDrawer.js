@@ -17,7 +17,7 @@ export default function UserDrawer({ open, onClose }) {
     { label: t("buy"), href: "/dashboard/market", icon: IconShoppingCart },
     { label: t("market"), href: "/dashboard/market", icon: IconChartLine },
     { label: t("kyc"), href: "/dashboard/kyc", icon: IconIdBadge2 },
-    { label: t("transfer"), href: "/dashboard/transfer", icon: IconArrowsExchange2 },
+    { label: t("transfer"), href: "/dashboard/send", icon: IconArrowsExchange2 },
     { label: t("walletConnect"), href: "#", icon: IconLink, placeholder: true },
     { label: t("myWallet"), href: "/dashboard", icon: IconWallet },
   ];

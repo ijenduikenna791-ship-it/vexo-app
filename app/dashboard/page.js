@@ -83,7 +83,7 @@ export default function Dashboard() {
   }, 0);
 
   return (
-    <main className="max-w-md mx-auto min-h-screen pb-28 px-4 pt-6 flex flex-col gap-6">
+    <main className="max-w-md mx-auto min-h-screen pb-28 px-4 pt-20 flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-vexo-card2 border border-vexo-border flex items-center justify-center font-bold">
@@ -155,19 +155,19 @@ export default function Dashboard() {
             const TrendIcon = isUp ? IconTrendingUp : IconTrendingDown;
             return (
               <Link key={symbol} href={`/dashboard/coin/${symbol}`} className="flex items-center justify-between py-4 border-b border-vexo-border last:border-none">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                    className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
                     style={{ backgroundColor: `${meta.iconColor}22` }}
                   >
                     <Icon size={20} style={{ color: meta.iconColor }} />
                   </div>
-                  <div>
-                    <p className="font-semibold text-sm">{meta.name}</p>
-                    <p className="text-vexo-muted text-xs">{amount.toFixed(6)} {symbol}</p>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-sm truncate">{meta.name}</p>
+                    <p className="text-vexo-muted text-xs truncate">{amount.toFixed(6)} {symbol}</p>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <p className="font-semibold text-sm">${amount > 0 ? value : "0"}</p>
                   <p className={`text-xs font-semibold flex items-center justify-end gap-1 ${isUp ? "text-vexo-green" : "text-red-400"}`}>
                     <TrendIcon size={12} /> {isUp ? "+" : ""}{meta.change}%
@@ -189,12 +189,12 @@ export default function Dashboard() {
             <p className="text-vexo-muted text-sm text-center py-6">No activity yet.</p>
           )}
           {transactions.map((t) => (
-            <div key={t.id} className="flex items-center justify-between py-3 border-b border-vexo-border last:border-none">
-              <div>
-                <p className="font-semibold text-sm">{t.type}</p>
+            <div key={t.id} className="flex items-center justify-between gap-2 py-3 border-b border-vexo-border last:border-none">
+              <div className="min-w-0">
+                <p className="font-semibold text-sm truncate">{t.type}</p>
                 <p className="text-vexo-muted text-xs">{t.created_at ? new Date(t.created_at).toLocaleDateString() : ""}</p>
               </div>
-              <p className="font-semibold text-sm">${Number(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+              <p className="font-semibold text-sm shrink-0">${Number(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             </div>
           ))}
         </div>

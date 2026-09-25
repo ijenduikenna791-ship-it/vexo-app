@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import {
   IconLayoutDashboard, IconUsers, IconWallet, IconArrowsExchange, IconArrowDownLeft,
   IconArrowUpRight, IconReceipt2, IconChartBar, IconSettings, IconHistory, IconLock,
-  IconHeadset, IconUserCog, IconLink, IconShieldLock, IconLogout, IconX,
+  IconHeadset, IconUserCog, IconLink, IconShieldLock, IconLogout, IconX, IconIdBadge2,
 } from "@tabler/icons-react";
 import { adminLogout } from "../lib/auth";
 import { useLanguage } from "../lib/i18n";
@@ -24,6 +24,7 @@ export default function AdminDrawer({ open, onClose }) {
       label: "Users",
       items: [
         { label: t("users"), href: "/admin/users", icon: IconUsers },
+        { label: "KYC Review", href: "/admin/kyc", icon: IconIdBadge2 },
       ],
     },
     {

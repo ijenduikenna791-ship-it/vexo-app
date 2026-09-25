@@ -34,6 +34,7 @@ export default function AdminUsers() {
         id: p.id,
         name: p.username || p.email || "Unnamed user",
         email: p.email || "-",
+        phone: p.phone || "-",
         balance: balanceByUser[p.id] || 0,
         status: p.status === "suspended" ? "Suspended" : p.kyc_status === "submitted" ? "Pending KYC" : "Active",
         joined: p.created_at ? new Date(p.created_at).toLocaleDateString(undefined, { month: "short", year: "numeric" }) : "-",
@@ -88,15 +89,16 @@ export default function AdminUsers() {
       <div className="bg-vexo-card border border-vexo-border rounded-2xl px-4">
         {loading && <p className="text-vexo-muted text-sm text-center py-10">Loading...</p>}
         {!loading && filtered.map((u) => (
-          <Link key={u.id} href={`/admin/users/${u.id}`} className="flex items-center justify-between py-4 border-b border-vexo-border last:border-none">
-            <div className="flex items-center gap-3">
+          <Link key={u.id} href={`/admin/users/${u.id}`} className="flex items-center justify-between gap-2 py-4 border-b border-vexo-border last:border-none">
+            <div className="flex items-center gap-3 min-w-0">
               <UserAvatar name={u.name} size={36} />
-              <div>
-                <p className="font-semibold text-sm">{u.name}</p>
-                <p className="text-vexo-muted text-xs">{u.email}</p>
+              <div className="min-w-0">
+                <p className="font-semibold text-sm truncate">{u.name}</p>
+                <p className="text-vexo-muted text-xs truncate">{u.email}</p>
+                <p className="text-vexo-muted text-xs truncate">{u.phone}</p>
               </div>
             </div>
-            <div className="text-right">
+            <div className="text-right shrink-0">
               <p className="font-semibold text-sm">${u.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               <p className={`text-xs ${statusColor[u.status]}`}>{u.status}</p>
             </div>

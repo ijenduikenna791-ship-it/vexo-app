@@ -38,7 +38,7 @@ export default function FAQ() {
                 className="w-full flex items-center justify-between gap-3 text-left"
               >
                 <span className="font-semibold text-sm">{item.q}</span>
-                <span className={`w-7 h-7 rounded-full bg-vexo-card2 flex items-center justify-center text-sm shrink-0 transition-transform duration-300 ${openIndex === i ? "rotate-45" : ""}`}>
+                <span className={`w-8 h-8 rounded-full bg-vexo-card2 flex items-center justify-center text-sm shrink-0 transition-transform duration-300 ${openIndex === i ? "rotate-45" : ""}`}>
                   +
                 </span>
               </button>

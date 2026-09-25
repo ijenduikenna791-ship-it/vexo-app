@@ -10,6 +10,7 @@ import {
 import BottomNav from "../../components/BottomNav";
 import { useLanguage } from "../../lib/i18n";
 import { supabase } from "../../lib/supabaseClient";
+import { registerPasskey, listPasskeys, removePasskey } from "../../lib/webauthnClient";
 
 function Toggle({ on, onClick }) {
   return (
@@ -37,6 +38,10 @@ export default function Profile() {
   const [kycSubmitting, setKycSubmitting] = useState(false);
 
   const [toggles, setToggles] = useState({ biometric: true, twoFactor: true, notifications: true });
+
+  const [passkeys, setPasskeys] = useState([]);
+  const [passkeyBusy, setPasskeyBusy] = useState(false);
+  const [passkeyMsg, setPasskeyMsg] = useState("");
 
   const [referralCode, setReferralCode] = useState("");
   const [copied, setCopied] = useState(false);
@@ -94,6 +99,8 @@ export default function Profile() {
           country: profile.country || "",
         });
 
+        listPasskeys().then(setPasskeys);
+
         let code = profile.referral_code;
         if (!code) {
           const base = (profile.username || session.email.split("@")[0]).toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -105,6 +112,24 @@ export default function Profile() {
     }
     loadData();
   }, [session?.id]);
+
+  async function handleRegisterPasskey() {
+    setPasskeyBusy(true);
+    setPasskeyMsg("");
+    const result = await registerPasskey("This device");
+    setPasskeyBusy(false);
+    if (result.success) {
+      setPasskeyMsg("Device registered for biometric sign-in.");
+      setPasskeys(await listPasskeys());
+    } else {
+      setPasskeyMsg(result.error || "Could not register this device.");
+    }
+  }
+
+  async function handleRemovePasskey(id) {
+    await removePasskey(id);
+    setPasskeys(await listPasskeys());
+  }
 
   async function flipToggle(key) {
     const newVal = !toggles[key];
@@ -187,7 +212,7 @@ export default function Profile() {
     t("notVerifiedSub");
 
   return (
-    <main className="max-w-md mx-auto min-h-screen pb-28 px-4 pt-6 flex flex-col gap-6">
+    <main className="max-w-md mx-auto min-h-screen pb-28 px-4 pt-20 flex flex-col gap-6">
       <div className="bg-vexo-card border border-vexo-border rounded-2xl p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -357,6 +382,34 @@ export default function Profile() {
           </form>
         </div>
       )}
+
+      <div>
+        <p className="text-vexo-muted text-xs uppercase tracking-wide mb-2">Biometric Devices</p>
+        <div className="bg-vexo-card border border-vexo-border rounded-2xl px-4">
+          {passkeys.length === 0 && (
+            <p className="text-vexo-muted text-sm text-center py-4">No devices registered yet.</p>
+          )}
+          {passkeys.map((p) => (
+            <div key={p.id} className="flex items-center justify-between py-3 border-b border-vexo-border last:border-none min-w-0">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold truncate">{p.device_name || "Device"}</p>
+                <p className="text-vexo-muted text-xs">{new Date(p.created_at).toLocaleDateString()}</p>
+              </div>
+              <button onClick={() => handleRemovePasskey(p.id)} className="text-red-400 text-xs font-semibold shrink-0">
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            onClick={handleRegisterPasskey}
+            disabled={passkeyBusy}
+            className="w-full py-3 text-vexo-orange text-sm font-semibold disabled:opacity-60"
+          >
+            {passkeyBusy ? "Registering..." : "+ Register this device"}
+          </button>
+          {passkeyMsg && <p className="text-vexo-muted text-xs text-center pb-3">{passkeyMsg}</p>}
+        </div>
+      </div>
 
       <div>
         <p className="text-vexo-muted text-xs uppercase tracking-wide mb-2">{t("securitySectionLabel")}</p>

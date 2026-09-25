@@ -84,16 +84,16 @@ export default function Market() {
 
       <div className="bg-vexo-card border border-vexo-border rounded-2xl px-4">
         {filtered.map((c) => (
-          <div key={c.symbol} className="flex items-center justify-between py-4 border-b border-vexo-border last:border-none">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-vexo-card2 flex items-center justify-center">{c.icon}</div>
-              <div>
-                <p className="font-semibold text-sm">{c.symbol}</p>
-                <p className="text-vexo-muted text-xs">{c.name}</p>
+          <div key={c.symbol} className="flex items-center justify-between gap-2 py-4 border-b border-vexo-border last:border-none">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-full bg-vexo-card2 flex items-center justify-center shrink-0">{c.icon}</div>
+              <div className="min-w-0">
+                <p className="font-semibold text-sm truncate">{c.symbol}</p>
+                <p className="text-vexo-muted text-xs truncate">{c.name}</p>
               </div>
             </div>
             <Sparkline data={c.sparkline} color={c.up ? "#22c55e" : "#ef4444"} width={60} height={22} />
-            <div className="text-right">
+            <div className="text-right shrink-0">
               <p className="font-semibold text-sm">{c.price}</p>
               <p className={`text-xs ${c.up ? "text-vexo-green" : "text-red-400"}`}>{c.change}</p>
             </div>

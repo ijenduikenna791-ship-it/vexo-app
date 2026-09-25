@@ -3,8 +3,6 @@ import { supabase } from "./supabaseClient";
 const SESSION_KEY = "vexo_session";
 const ADMIN_SESSION_KEY = "vexo_admin_session";
 const PENDING_REFERRAL_KEY = "vexo_pending_referral";
-const ADMIN_EMAIL = "admin@vexo.com";
-const ADMIN_PASSWORD = "admin123";
 
 function safeParse(value) {
   try {
@@ -17,6 +15,15 @@ function safeParse(value) {
 function saveSession(sessionData) {
   if (typeof window === "undefined") return;
   localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+}
+
+function notifyEmail(type, email, username) {
+  if (typeof window === "undefined" || !email) return;
+  fetch("/api/notify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type, email, username }),
+  }).catch(() => {});
 }
 
 function generateReferralCode() {
@@ -36,7 +43,23 @@ export function getUsers() {
 
 async function ensureProfile(authUser, meta) {
   const { data: existing } = await supabase.from("profiles").select("*").eq("id", authUser.id).maybeSingle();
-  if (existing) return existing;
+  if (existing) {
+    const needsPhone = !existing.phone && meta.phone;
+    const needsCountry = !existing.country && meta.country;
+    if (needsPhone || needsCountry) {
+      const { data: patched } = await supabase
+        .from("profiles")
+        .update({
+          phone: needsPhone ? meta.phone : existing.phone,
+          country: needsCountry ? meta.country : existing.country,
+        })
+        .eq("id", authUser.id)
+        .select()
+        .maybeSingle();
+      return patched || existing;
+    }
+    return existing;
+  }
 
   let referredBy = null;
   let pendingCode = null;
@@ -130,6 +153,18 @@ export async function login({ email, password }) {
     country: authUser.user_metadata?.country,
   });
 
+  if (profile?.two_factor_enabled) {
+    await supabase.auth.signOut();
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false },
+    });
+    if (otpError) {
+      return { success: false, error: "Could not send your verification code. Please try again." };
+    }
+    return { success: true, needsTwoFactor: true, email };
+  }
+
   saveSession({
     id: authUser.id,
     username: profile?.username || authUser.user_metadata?.username || "",
@@ -137,6 +172,49 @@ export async function login({ email, password }) {
     phone: profile?.phone || "",
     country: profile?.country || "",
   });
+  notifyEmail("login", authUser.email, profile?.username);
+  return { success: true };
+}
+
+export async function verifyTwoFactorCode({ email, code }) {
+  const { data, error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
+  if (error) {
+    return { success: false, error: "Invalid or expired code. Please try again." };
+  }
+
+  const authUser = data.user;
+  const profile = await ensureProfile(authUser, {
+    username: authUser.user_metadata?.username,
+    phone: authUser.user_metadata?.phone,
+    country: authUser.user_metadata?.country,
+  });
+
+  saveSession({
+    id: authUser.id,
+    username: profile?.username || authUser.user_metadata?.username || "",
+    email: authUser.email,
+    phone: profile?.phone || "",
+    country: profile?.country || "",
+  });
+  notifyEmail("login", authUser.email, profile?.username);
+  return { success: true };
+}
+
+export async function completePasskeyLogin(authUser) {
+  const profile = await ensureProfile(authUser, {
+    username: authUser.user_metadata?.username,
+    phone: authUser.user_metadata?.phone,
+    country: authUser.user_metadata?.country,
+  });
+
+  saveSession({
+    id: authUser.id,
+    username: profile?.username || authUser.user_metadata?.username || "",
+    email: authUser.email,
+    phone: profile?.phone || "",
+    country: profile?.country || "",
+  });
+  notifyEmail("login", authUser.email, profile?.username);
   return { success: true };
 }
 
@@ -152,12 +230,29 @@ export async function logout() {
   }
 }
 
-export function adminLogin({ email, password }) {
-  if (email.toLowerCase() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-    localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({ email }));
+export async function adminLogin({ email, password }) {
+  try {
+    const res = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      return { success: false, error: data.error || "Invalid admin credentials." };
+    }
+    if (typeof window !== "undefined") {
+      localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(data.admin));
+    }
     return { success: true };
+  } catch (err) {
+    return { success: false, error: "Could not sign in. Please try again." };
   }
-  return { success: false, error: "Invalid admin credentials." };
+}
+
+export function setAdminSession(admin) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(admin));
 }
 
 export function getAdminSession() {

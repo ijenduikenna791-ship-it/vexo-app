@@ -11,8 +11,8 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-20">
-      <h2 className="text-3xl font-extrabold text-center">{t("howItWorksHeading")}</h2>
+    <section id="how-it-works" className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+      <h2 className="text-2xl sm:text-3xl font-extrabold text-center">{t("howItWorksHeading")}</h2>
       <div className="grid md:grid-cols-3 gap-6 mt-12">
         {steps.map((s) => (
           <div key={s.number} className="border border-vexo-border rounded-2xl p-6">

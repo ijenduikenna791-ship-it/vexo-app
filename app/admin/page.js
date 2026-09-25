@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { IconUsers, IconChartBar, IconWallet, IconClockHour4 } from "@tabler/icons-react";
 import AdminBottomNav from "../components/AdminBottomNav";
 import { supabase } from "../lib/supabaseClient";
@@ -57,7 +58,7 @@ export default function AdminOverview() {
     { icon: IconUsers, label: "Total Users", value: loading ? "..." : totalUsers.toLocaleString(), bg: "bg-blue-500/15", color: "text-blue-400" },
     { icon: IconChartBar, label: "24h Volume", value: loading ? "..." : `${volume24h.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, bg: "bg-vexo-orange/15", color: "text-vexo-orange" },
     { icon: IconWallet, label: "Active Wallets", value: loading ? "..." : activeWallets.toLocaleString(), bg: "bg-vexo-green/15", color: "text-vexo-green" },
-    { icon: IconClockHour4, label: "Pending KYC", value: loading ? "..." : pendingKyc.toLocaleString(), bg: "bg-amber-500/15", color: "text-amber-400" },
+    { icon: IconClockHour4, label: "Pending KYC", value: loading ? "..." : pendingKyc.toLocaleString(), bg: "bg-amber-500/15", color: "text-amber-400", href: "/admin/kyc" },
   ];
 
   return (
@@ -68,15 +69,19 @@ export default function AdminOverview() {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        {stats.map((s) => (
-          <div key={s.label} className="bg-vexo-card border border-vexo-border rounded-2xl p-4">
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${s.bg} ${s.color}`}>
-              <s.icon size={18} />
-            </div>
-            <p className="font-bold text-lg leading-tight">{s.value}</p>
-            <p className="text-vexo-muted text-xs mt-1">{s.label}</p>
-          </div>
-        ))}
+        {stats.map((s) => {
+          const CardTag = s.href ? Link : "div";
+          const cardProps = s.href ? { href: s.href } : {};
+          return (
+            <CardTag key={s.label} {...cardProps} className="bg-vexo-card border border-vexo-border rounded-2xl p-4 block">
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${s.bg} ${s.color}`}>
+                <s.icon size={18} />
+              </div>
+              <p className="font-bold text-lg leading-tight">{s.value}</p>
+              <p className="text-vexo-muted text-xs mt-1">{s.label}</p>
+            </CardTag>
+          );
+        })}
       </div>
 
       <div>
@@ -86,12 +91,12 @@ export default function AdminOverview() {
             <p className="text-vexo-muted text-sm text-center py-6">No transactions yet.</p>
           )}
           {recentTx.map((tx, i) => (
-            <div key={i} className="flex items-center justify-between py-4 border-b border-vexo-border last:border-none">
-              <div>
-                <p className="font-semibold text-sm">{tx.user}</p>
-                <p className="text-vexo-muted text-xs">{tx.type}</p>
+            <div key={i} className="flex items-center justify-between gap-2 py-4 border-b border-vexo-border last:border-none">
+              <div className="min-w-0">
+                <p className="font-semibold text-sm truncate">{tx.user}</p>
+                <p className="text-vexo-muted text-xs truncate">{tx.type}</p>
               </div>
-              <div className="text-right">
+              <div className="text-right shrink-0">
                 <p className="font-semibold text-sm">{tx.amount}</p>
                 <p className={`text-xs ${tx.status === "Completed" ? "text-vexo-green" : tx.status === "Failed" || tx.status === "Rejected" ? "text-red-400" : "text-yellow-400"}`}>{tx.status}</p>
               </div>

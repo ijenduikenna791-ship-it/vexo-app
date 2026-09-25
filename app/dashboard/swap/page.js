@@ -119,7 +119,7 @@ export default function Swap() {
 
     await supabase.from("transactions").insert({
       user_id: session.id,
-      type: `Swap: ${fromSymbol} â†’ ${toSymbol}`,
+      type: `Swap: ${fromSymbol} -> ${toSymbol}`,
       amount: usdValue,
       status: "Completed",
     });
@@ -214,7 +214,7 @@ export default function Swap() {
         </div>
 
         <p className="text-vexo-muted text-xs text-center">
-          Rate: 1 {fromSymbol} â‰ˆ {(coinMeta[fromSymbol]?.price / (coinMeta[toSymbol]?.price || 1)).toFixed(6)} {toSymbol}
+          Rate: 1 {fromSymbol} {"\u2248"} {(coinMeta[fromSymbol]?.price / (coinMeta[toSymbol]?.price || 1)).toFixed(6)} {toSymbol}
         </p>
 
         <button

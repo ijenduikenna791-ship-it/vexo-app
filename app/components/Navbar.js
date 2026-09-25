@@ -40,7 +40,7 @@ export default function Navbar() {
           <ThemeToggle />
           <button
             onClick={() => setOpen(!open)}
-            className="w-9 h-9 rounded-lg bg-vexo-card2 border border-vexo-border flex items-center justify-center transition-transform duration-200 active:scale-90"
+            className="w-10 h-10 rounded-lg bg-vexo-card2 border border-vexo-border flex items-center justify-center transition-transform duration-200 active:scale-90"
           >
             ☰
           </button>

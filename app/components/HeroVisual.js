@@ -5,7 +5,7 @@ export default function HeroVisual() {
   const { t } = useLanguage();
 
   return (
-    <div className="relative w-full h-[420px] sm:h-[480px] flex items-center justify-center">
+    <div className="relative w-full h-[420px] sm:h-[480px] flex items-center justify-center overflow-hidden">
       <svg
         viewBox="0 0 400 400"
         className="absolute inset-0 w-full h-full opacity-70"
