@@ -583,7 +583,7 @@ export default function UserDetail() {
                 <p className="text-vexo-muted text-xs mt-1">Due {b.due_date || "-"} - {b.currency || "USD"} {b.amount}</p>
               </div>
             ))}
-        </div>
+          </div>
         </div>
       )}
 
@@ -603,6 +603,7 @@ export default function UserDetail() {
             <div className="flex items-center gap-2 text-sm">
               <IconLock size={16} className="text-vexo-muted" />
               <span>Password resets and 2FA state are never shown to admins for security reasons.</span>
+            </div>
           </div>
 
           {user.kyc_status === "submitted" && (
