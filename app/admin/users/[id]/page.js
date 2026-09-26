@@ -82,8 +82,16 @@ export default function UserDetail() {
     }
   }
 
+  async function dbWrite(table, action, data, match) {
+    await fetch("/api/admin/db-write", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ table, action, data, match }),
+    });
+  }
+
   async function notifyUser(userId, message, type) {
-    await supabase.from("notifications").insert({ user_id: userId, message, type: type || "info", read: false });
+    await dbWrite("notifications", "insert", { user_id: userId, message, type: type || "info", read: false });
   }
 
   async function maybePayReferralReward(referredProfile) {
@@ -105,16 +113,13 @@ export default function UserDetail() {
       .eq("symbol", "USDT")
       .maybeSingle();
 
-    if (referrerWallet) {
-      await supabase
-        .from("wallets")
-        .update({ amount: Number(referrerWallet.amount) + REFERRAL_BONUS })
-        .eq("id", referrerWallet.id);
-    } else {
-      await supabase.from("wallets").insert({ user_id: referredProfile.referred_by, symbol: "USDT", amount: REFERRAL_BONUS });
-    }
+    await fetch("/api/admin/wallet-credit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: referredProfile.referred_by, symbol: "USDT", delta: REFERRAL_BONUS }),
+    });
 
-    await supabase.from("transactions").insert({
+    await dbWrite("transactions", "insert", {
       user_id: referredProfile.referred_by,
       type: "Referral bonus",
       amount: REFERRAL_BONUS,
@@ -163,7 +168,7 @@ export default function UserDetail() {
       return;
     }
 
-    await supabase.from("transactions").insert({
+    await dbWrite("transactions", "insert", {
       user_id: id,
       type: "Deposit",
       amount: amountNum,
@@ -197,8 +202,8 @@ export default function UserDetail() {
       return;
     }
 
-    await supabase.from("deposits").update({ status: "Approved" }).eq("id", d.id);
-    await supabase.from("transactions").insert({
+    await dbWrite("deposits", "update", { status: "Approved" }, { column: "id", value: d.id });
+    await dbWrite("transactions", "insert", {
       user_id: id,
       type: `Deposit approved: ${d.amount} ${d.asset}`,
       amount: d.amount,
@@ -218,7 +223,7 @@ export default function UserDetail() {
     setDepositActionId(d.id);
     setActionMessage("");
 
-    await supabase.from("deposits").update({ status: "Rejected" }).eq("id", d.id);
+    await dbWrite("deposits", "update", { status: "Rejected" }, { column: "id", value: d.id });
 
     await notifyUser(id, `Your deposit of ${d.amount} ${d.asset} was rejected.`, "error");
 
@@ -247,11 +252,11 @@ export default function UserDetail() {
 
     // Funds were already reserved (debited) when the user requested this,
     // so approving just marks it fulfilled without touching the wallet again.
-    await supabase.from("withdrawals").update({ status: "Approved" }).eq("id", w.id);
+    await dbWrite("withdrawals", "update", { status: "Approved" }, { column: "id", value: w.id });
 
     const matchingTx = await findMatchingWithdrawalTransaction(w);
     if (matchingTx) {
-      await supabase.from("transactions").update({ status: "Completed" }).eq("id", matchingTx.id);
+      await dbWrite("transactions", "update", { status: "Completed" }, { column: "id", value: matchingTx.id });
     }
 
     await notifyUser(id, `Your withdrawal of ${w.amount} ${w.asset} was approved and sent.`, "success");
@@ -279,11 +284,11 @@ export default function UserDetail() {
       return;
     }
 
-    await supabase.from("withdrawals").update({ status: "Rejected" }).eq("id", w.id);
+    await dbWrite("withdrawals", "update", { status: "Rejected" }, { column: "id", value: w.id });
 
     const matchingTx = await findMatchingWithdrawalTransaction(w);
     if (matchingTx) {
-      await supabase.from("transactions").update({ status: "Failed" }).eq("id", matchingTx.id);
+      await dbWrite("transactions", "update", { status: "Failed" }, { column: "id", value: matchingTx.id });
     }
 
     await notifyUser(id, `Your withdrawal of ${w.amount} ${w.asset} was rejected and refunded to your balance.`, "error");
