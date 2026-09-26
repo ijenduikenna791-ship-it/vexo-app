@@ -151,22 +151,13 @@ export default function UserDetail() {
     }
     setTopUpSaving(true);
 
-    const existingWallet = wallets.find((w) => w.symbol === "USDT");
-    let walletError = null;
-    if (existingWallet) {
-      const { error } = await supabase
-        .from("wallets")
-        .update({ amount: Number(existingWallet.amount) + amountNum })
-        .eq("id", existingWallet.id);
-      walletError = error;
-    } else {
-      const { error } = await supabase
-        .from("wallets")
-        .insert({ user_id: id, symbol: "USDT", amount: amountNum });
-      walletError = error;
-    }
+    const creditRes = await fetch("/api/admin/wallet-credit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: id, symbol: "USDT", delta: amountNum }),
+    });
 
-    if (walletError) {
+    if (!creditRes.ok) {
       setTopUpSaving(false);
       setTopUpError("Could not update balance. Please try again.");
       return;
@@ -194,22 +185,13 @@ export default function UserDetail() {
     setDepositActionId(d.id);
     setActionMessage("");
 
-    const existingWallet = wallets.find((w) => w.symbol === d.asset);
-    let walletError = null;
-    if (existingWallet) {
-      const { error } = await supabase
-        .from("wallets")
-        .update({ amount: Number(existingWallet.amount) + Number(d.amount) })
-        .eq("id", existingWallet.id);
-      walletError = error;
-    } else {
-      const { error } = await supabase
-        .from("wallets")
-        .insert({ user_id: id, symbol: d.asset, amount: d.amount });
-      walletError = error;
-    }
+    const creditRes = await fetch("/api/admin/wallet-credit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: id, symbol: d.asset, delta: Number(d.amount) }),
+    });
 
-    if (walletError) {
+    if (!creditRes.ok) {
       setDepositActionId(null);
       setActionMessage("Could not credit the wallet. Please try again.");
       return;
@@ -285,22 +267,13 @@ export default function UserDetail() {
     setActionMessage("");
 
     // Refund the reserved amount back to the user's wallet since this won't be sent.
-    const existingWallet = wallets.find((wal) => wal.symbol === w.asset);
-    let walletError = null;
-    if (existingWallet) {
-      const { error } = await supabase
-        .from("wallets")
-        .update({ amount: Number(existingWallet.amount) + Number(w.amount) })
-        .eq("id", existingWallet.id);
-      walletError = error;
-    } else {
-      const { error } = await supabase
-        .from("wallets")
-        .insert({ user_id: id, symbol: w.asset, amount: w.amount });
-      walletError = error;
-    }
+    const creditRes = await fetch("/api/admin/wallet-credit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: id, symbol: w.asset, delta: Number(w.amount) }),
+    });
 
-    if (walletError) {
+    if (!creditRes.ok) {
       setWithdrawalActionId(null);
       setActionMessage("Could not refund the wallet. Please try again.");
       return;
@@ -610,7 +583,7 @@ export default function UserDetail() {
                 <p className="text-vexo-muted text-xs mt-1">Due {b.due_date || "-"} - {b.currency || "USD"} {b.amount}</p>
               </div>
             ))}
-          </div>
+        </div>
         </div>
       )}
 
@@ -630,7 +603,6 @@ export default function UserDetail() {
             <div className="flex items-center gap-2 text-sm">
               <IconLock size={16} className="text-vexo-muted" />
               <span>Password resets and 2FA state are never shown to admins for security reasons.</span>
-            </div>
           </div>
 
           {user.kyc_status === "submitted" && (
